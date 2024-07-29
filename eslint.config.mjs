@@ -1,5 +1,7 @@
 import globals from 'globals';
 import pluginJs from '@eslint/js';
+// @ts-ignore
+import tailwindcss from 'eslint-plugin-tailwindcss';
 
 export default [
   {
@@ -8,4 +10,12 @@ export default [
     },
   },
   pluginJs.configs.recommended,
+  {
+    plugins: {
+      tailwindcss,
+    },
+    rules: {
+      ...tailwindcss.configs.recommended.rules,
+    },
+  },
 ];

@@ -10,14 +10,69 @@
 
     <title>Les petits plats</title>
 
+    <link rel="icon" type="image/png" sizes="32x32" href="public/favicon.png" />
     <link rel="stylesheet" href="src/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton:wght@400&family=Manrope:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
-    <header>
-      <h1 class="text-yellow-400">
-        CHERCHEZ PARMI PLUS DE 1500 RECETTES DU QUOTIDIEN,SIMPLES ET DÉLICIEUSES
-      </h1>
+    <header class="relative h-667px">
+      <img src="public/img-bg-lampos-aritonang.jpg" alt="Arrière-plan de recettes" class="header-bg-image" />
+      <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-10">
+        <img src="public/logo.png" alt="Les petits plats logo" class="absolute left-16 top-10 h-6 w-auto" />
+        <h1
+          class="between-lg:text-title max-w-890 px-4 text-center font-display text-2xl text-customYellow sm:text-3xl md:text-4xl xl:text-5xl"
+        >
+          CHERCHEZ PARMI PLUS DE 1500 RECETTES<br />
+          DU QUOTIDIEN,SIMPLES ET DÉLICIEUSES
+        </h1>
+        <!-- search bar -->
+        <div class="relative mt-8 w-full max-w-954">
+          <form class="flex h-72px items-center rounded-radius10 bg-white">
+            <label for="search" class="sr-only">Recherche</label>
+            <input
+              id="search"
+              type="text"
+              name="search"
+              placeholder="Rechercher une recette, un ingrédient, ..."
+              class="rounded-1 w-full truncate rounded-l-full py-6 pl-9 focus:outline-none"
+            />
+            <button type="button" class="hidden" aria-label="Clear search">
+              <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M15 15L8.5 8.5M8.5 8.5L2 2M8.5 8.5L15 2M8.5 8.5L2 15"
+                  stroke="#7A7A7A"
+                  stroke-width="2.166"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <button
+              type="submit"
+              name="submit"
+              value="search"
+              class="search-button relative m-3 rounded-radius10 bg-black p-3 text-white hover:bg-customYellow focus:bg-customYellow focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              aria-label="Search"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512"
+                class="h-7 w-7 fill-current transition-colors duration-300 ease-out"
+              >
+                <path
+                  d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"
+                />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
     </header>
     <main></main>
   </body>

@@ -1,3 +1,29 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Classes personnalisées */
+.search-button svg {
+  color: #fff;
+}
+
+.search-button:hover svg,
+.search-button:focus svg {
+  color: #000;
+}
+
+.hidden {
+  display: none;
+}
+
+.header-bg-image {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
