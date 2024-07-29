@@ -15,6 +15,7 @@ Ce projet utilise les technologies suivantes:
 - **Vite** : Pour le bundling et le développement rapide.
 - **Prettier** : Pour le formatage cohérent du code.
 - **PostCSS** : Pour transformer les styles avec des plugins JavaScript (comme Autoprefixer).
+- **ESLint** : Pour l'analyse de code statique et le linting du JavaScript.
 
 ## Extensions VS Code Recommandées
 
@@ -44,7 +45,22 @@ Pour assurer une expérience de développement cohérente, appliquez les configu
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html",
+    "javascript": "javascript",
+    "javascriptreact": "javascript",
+    "typescript": "javascript",
+    "typescriptreact": "javascript"
+  },
+  "tailwindCSS.emmetCompletions": true,
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "tailwindCSS.colorDecorators": true,
+  "tailwindCSS.showPixelEquivalents": true,
+  "css.lint.vendorPrefix": "ignore",
+  "css.lint.propertyIgnoredDueToDisplay": "ignore"
 }
 ```
 
@@ -53,7 +69,7 @@ Pour assurer une expérience de développement cohérente, appliquez les configu
 Pour installer et configurer le projet :
 
 - Clonez le dépôt :
-  $ git clone <url du repo>
+  $ git clone `url du repo`
   $ cd nom-du-repo
 
 - Installez les dépendances :
@@ -64,7 +80,7 @@ Pour installer et configurer le projet :
 Pour démarrer le projet en mode développement, exécutez :
 $ npm run dev
 
-Pour créer une version en production, qui génère un fichier optimisé `style.css` dans un dossier `dist/`, exécutez :
+Pour créer une version en production, qui génère un fichier optimisé `.css` dans un dossier `dist/`, exécutez :
 $ npm run build
 
 Pour prévisualiser la version en production, exécutez :
