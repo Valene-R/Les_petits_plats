@@ -11,22 +11,24 @@
     <title>Les petits plats</title>
 
     <link rel="icon" type="image/png" sizes="32x32" href="public/favicon.png" />
-    <link rel="stylesheet" href="src/style.css" />
+    <link rel="stylesheet" href="./src/style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Anton:wght@400&family=Manrope:wght@400;500;700&display=swap"
       rel="stylesheet"
     />
+
+    <script type="module" src="./src/main.js"></script>
   </head>
 
   <body>
     <header class="relative h-667px">
-      <img src="public/img-bg-lampos-aritonang.jpg" alt="Arrière-plan de recettes" class="header-bg-image" />
+      <img src="./src/assets/img-bg-lampos-aritonang.jpg" alt="Arrière-plan de recettes" class="header-bg-image" />
       <div class="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-10">
-        <img src="public/logo.png" alt="Les petits plats logo" class="absolute left-16 top-10 h-6 w-auto" />
+        <img src="./src/assets/logo.png" alt="Les petits plats logo" class="absolute left-16 top-10 h-6 w-auto" />
         <h1
-          class="between-lg:text-title max-w-890 px-4 text-center font-display text-2xl text-customYellow sm:text-3xl md:text-4xl xl:text-5xl"
+          class="max-w-890 px-4 text-center font-display text-2xl text-customYellow sm:text-3xl md:text-4xl xl:text-5xl between-lg:text-title"
         >
           CHERCHEZ PARMI PLUS DE 1500 RECETTES<br />
           DU QUOTIDIEN,SIMPLES ET DÉLICIEUSES
@@ -40,7 +42,7 @@
               type="text"
               name="search"
               placeholder="Rechercher une recette, un ingrédient, ..."
-              class="rounded-1 w-full truncate rounded-l-full py-6 pl-9 focus:outline-none"
+              class="w-full truncate rounded-xl py-6 pl-9 focus:outline-none"
             />
             <button type="button" class="hidden" aria-label="Clear search">
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -74,6 +76,6 @@
         </div>
       </div>
     </header>
-    <main></main>
+    <main class="flex flex-wrap justify-center"></main>
   </body>
 </html>
