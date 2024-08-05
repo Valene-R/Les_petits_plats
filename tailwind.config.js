@@ -16,6 +16,8 @@ export default {
       },
       borderRadius: {
         radius10: '10px',
+        radius14: '14px',
+        radius21: '21px',
       },
       maxWidth: {
         954: '954px',
@@ -25,10 +27,20 @@ export default {
         customYellow: '#FFDD57',
       },
       fontFamily: {
-        display: ['Anton', { fontWeight: '400' }],
+        display: ['Anton', 'sans-serif'],
+        h3: ['Manrope', 'sans-serif'],
+        list: ['Manrope', 'sans-serif'],
+      },
+      fontWeight: {
+        display: '400',
+        h3: '700',
+        list: '500',
       },
       screens: {
         'between-lg': { min: '1430px', max: '1440px' },
+      },
+      boxShadow: {
+        'custom-card': '0px 4px 34px 30px rgba(0, 0, 0, 0.04)',
       },
     },
   },
