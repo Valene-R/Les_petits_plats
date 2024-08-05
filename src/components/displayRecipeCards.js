@@ -1,5 +1,6 @@
 import { getRecipes } from '../services/api.js';
 import { recipeCard } from './recipeCard.js';
+import { displayError } from '../utils/displayError.js';
 
 /**
  *  Affiche les cartes de recette dans le conteneur principal
@@ -24,10 +25,7 @@ export async function displayRecipeCards() {
   } catch (error) {
     console.error('Error loading recipe cards:', error);
 
-    // Crée un message d'erreur et l'ajoute au conteneur principal
-    const errorMessage = document.createElement('p');
-    errorMessage.textContent = 'Échec du chargement des recettes. Veuillez réessayer plus tard.';
-    errorMessage.className = 'text-red-600 m-10 text-center text-lg md:text-xl lg:text-2xl';
-    mainContainer.appendChild(errorMessage);
+    // Utilise la fonction displayError pour afficher un message d'erreur
+    displayError(mainContainer, 'Échec du chargement des recettes. Veuillez réessayer plus tard.');
   }
 }
