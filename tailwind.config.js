@@ -25,22 +25,39 @@ export default {
       },
       colors: {
         customYellow: '#FFDD57',
+        customLightGrey: '#EDEDED',
       },
       fontFamily: {
         display: ['Anton', 'sans-serif'],
         h3: ['Manrope', 'sans-serif'],
         list: ['Manrope', 'sans-serif'],
+        li: ['Manrope', 'sans-serif'],
       },
       fontWeight: {
         display: '400',
         h3: '700',
         list: '500',
+        li: '400',
       },
       screens: {
         'between-lg': { min: '1430px', max: '1440px' },
       },
       boxShadow: {
         'custom-card': '0px 4px 34px 30px rgba(0, 0, 0, 0.04)',
+      },
+      keyframes: {
+        'dropdown-open': {
+          '0%': { transform: 'scaleY(0)' },
+          '100%': { transform: 'scaleY(1)' },
+        },
+        'dropdown-close': {
+          '0%': { transform: 'scaleY(1)' },
+          '100%': { transform: 'scaleY(0)' },
+        },
+      },
+      animation: {
+        'dropdown-open': 'dropdown-open 0.3s ease-out forwards',
+        'dropdown-close': 'dropdown-close 0.3s ease-in forwards',
       },
     },
   },

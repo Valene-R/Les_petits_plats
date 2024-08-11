@@ -14,3 +14,41 @@ export async function getRecipes() {
     throw error; // Relance l'erreur pour la gestion par la fonction appelante
   }
 }
+
+/**
+ * Récupère les recettes et extrait les ingrédients, appareils et ustensiles uniques
+ * @returns {Promise<Object>} Une promesse qui se résout avec un objet contenant les ingrédients, appareils et ustensiles uniques
+ * @throws {Error} Lance une erreur si l'extraction échoue
+ */
+export async function getUniqueRecipeComponents() {
+  try {
+    // Appelle la fonction getRecipes pour récupérer toutes les recettes
+    const recipes = await getRecipes();
+
+    // Initialise des ensembles pour stocker les ingrédients, appareils et ustensiles uniques
+    const ingredients = new Set();
+    const appliances = new Set();
+    const ustensils = new Set();
+
+    // Parcourt chaque recette pour extraire les composants uniques
+    recipes.forEach((recipe) => {
+      // Ajoute chaque ingrédient à l'ensemble des ingrédients
+      recipe.ingredients.forEach((ing) => ingredients.add(ing.ingredient));
+      // Ajoute l'appareil à l'ensemble des appareils
+      appliances.add(recipe.appliance);
+      // Ajoute chaque ustensile à l'ensemble des ustensiles
+      recipe.ustensils.forEach((ust) => ustensils.add(ust));
+    });
+
+    // Retourne un objet contenant les ingrédients, appareils et ustensiles uniques
+    return {
+      ingredients: Array.from(ingredients), // Convertit l'ensemble des ingrédients en tableau
+      appliances: Array.from(appliances), // Convertit l'ensemble des appareils en tableau
+      ustensils: Array.from(ustensils), // Convertit l'ensemble des ustensiles en tableau
+    };
+  } catch (error) {
+    // Affiche un message d'erreur en cas de problème lors de l'extraction des composants
+    console.error('Failed to fetch recipe components:', error);
+    throw error;
+  }
+}
