@@ -1,3 +1,5 @@
+import { toggleDropdown } from '../utils/toggleDropdown.js';
+
 /**
  * Crée un menu déroulant pour les éléments de sélection (catégories : ingrédients, appareils, ustensiles)
  * @param {String} title Le titre du dropdown (le texte affiché sur le bouton)
@@ -112,41 +114,7 @@ export function createDropdown(title, id) {
   dropdownContainer.appendChild(dropdownContent);
 
   // Ajoute un événement au clic du bouton pour ouvrir/fermer le dropdown
-  button.addEventListener('click', () => {
-    const isVisible = dropdownContent.classList.contains('scale-y-100');
-    const icon = document.getElementById(`${id}-icon`);
-
-    if (isVisible) {
-      // Si le dropdown est visible, commence la fermeture
-      dropdownContent.classList.remove('scale-y-100'); // Rend le dropdown visible
-      dropdownContent.classList.add('scale-y-0'); // Cache le dropdown
-      dropdownContent.classList.remove('animate-dropdown-open');
-      dropdownContent.classList.add('animate-dropdown-close');
-
-      // Utilise setTimeout pour attendre la fin de la transition (300ms) avant de cacher le contenu et réinitialiser les angles arrondis
-      setTimeout(() => {
-        dropdownContent.classList.add('hidden');
-        button.classList.remove('open-border-radius');
-        button.classList.add('closed-border-radius');
-        button.setAttribute('aria-expanded', 'false'); // Accessibilité
-      }, 300);
-    } else {
-      // Si le dropdown est caché, commence l'ouverture
-      dropdownContent.classList.remove('hidden');
-      dropdownContent.classList.remove('scale-y-0');
-      dropdownContent.classList.add('scale-y-100');
-      dropdownContent.classList.remove('animate-dropdown-close');
-      dropdownContent.classList.add('animate-dropdown-open');
-      button.setAttribute('aria-expanded', 'true'); // Accessibilité
-
-      // Change les coins du bouton pour indiquer que le dropdown est ouvert
-      button.classList.remove('closed-border-radius');
-      button.classList.add('open-border-radius');
-    }
-
-    // Pivote l'icône du dropdown
-    icon.classList.toggle('rotate-180');
-  });
+  button.addEventListener('click', () => toggleDropdown(button, dropdownContent, icon));
 
   // Gére l'affichage de la croix
   searchInput.addEventListener('input', () => {
