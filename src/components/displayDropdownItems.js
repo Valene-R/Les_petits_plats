@@ -23,9 +23,14 @@ export async function displayDropdownItems(listContainer) {
     listContainer.appendChild(ustensilsDropdown);
 
     // Affiche les éléments dans les dropdowns respectifs
-    createDropdownItems(ingredients, document.getElementById('ingredients-content').querySelector('ul'));
-    createDropdownItems(appliances, document.getElementById('appliances-content').querySelector('ul'));
-    createDropdownItems(ustensils, document.getElementById('ustensils-content').querySelector('ul'));
+    // Cette fonction prend trois arguments :
+    // 1. Le tableau d'éléments à afficher dans le dropdown ('ingredients', 'appliances', 'ustensils')
+    // 2. Le conteneur <ul> du dropdown où les éléments seront ajoutés
+    // 3. Un identifiant unique ('ingredients', 'appliances', 'ustensils')
+    // qui aide à lier chaque dropdown à son contenu pour des opérations comme la réinitialisation de l'ordre des éléments aprés suppressions ou réinsertions
+    createDropdownItems(ingredients, document.getElementById('ingredients-content').querySelector('ul'), 'ingredients');
+    createDropdownItems(appliances, document.getElementById('appliances-content').querySelector('ul'), 'appliances');
+    createDropdownItems(ustensils, document.getElementById('ustensils-content').querySelector('ul'), 'ustensils');
   } catch (error) {
     // Affiche une erreur en cas de problème lors du chargement des éléments
     console.error('Error loading items:', error);

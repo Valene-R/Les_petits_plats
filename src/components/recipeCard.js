@@ -7,7 +7,7 @@ export function recipeCard(recipe) {
   // Crée l'élément principal de la carte
   const card = document.createElement('div');
   card.className =
-    'w-full max-w-[380px] h-[731px] rounded-radius21 overflow-hidden shadow-custom-card m-6 mt-14 bg-white';
+    'w-full max-w-[380px] h-[731px] rounded-radius21 overflow-hidden shadow-custom-card m-6 mt-10 bg-white';
 
   // Crée le conteneur de l'image
   const imageContainer = document.createElement('div');

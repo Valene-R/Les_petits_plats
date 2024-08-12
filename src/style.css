@@ -79,3 +79,11 @@
   border-bottom-left-radius: 0.75rem;
   border-bottom-right-radius: 0.75rem;
 }
+
+.selected-item {
+  display: flex;
+  justify-content: space-between; /* Espace le texte et la croix */
+  align-items: center; /* Centre verticalement */
+  padding-right: 11px;
+  padding-left: 16px;
+}

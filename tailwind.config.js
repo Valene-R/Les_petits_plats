@@ -22,9 +22,10 @@ export default {
       maxWidth: {
         954: '954px',
         890: '890px',
+        '8xl': '90rem', // 1440px
       },
       colors: {
-        customYellow: '#FFDD57',
+        customYellow: '#FFD15B',
         customLightGrey: '#EDEDED',
       },
       fontFamily: {
