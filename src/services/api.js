@@ -1,3 +1,5 @@
+import { normalizeString } from '../utils/normalizeString.js';
+
 /**
  * Récupére dynamiquement les recettes à partir du fichier data/recipes.js
  * @returns {Promise<Array>} Une promesse qui se résout avec le tableau des recettes
@@ -33,11 +35,11 @@ export async function getUniqueRecipeComponents() {
     // Parcourt chaque recette pour extraire les composants uniques
     recipes.forEach((recipe) => {
       // Ajoute chaque ingrédient à l'ensemble des ingrédients
-      recipe.ingredients.forEach((ing) => ingredients.add(ing.ingredient));
+      recipe.ingredients.forEach((ing) => ingredients.add(normalizeString(ing.ingredient)));
       // Ajoute l'appareil à l'ensemble des appareils
-      appliances.add(recipe.appliance);
+      appliances.add(normalizeString(recipe.appliance));
       // Ajoute chaque ustensile à l'ensemble des ustensiles
-      recipe.ustensils.forEach((ust) => ustensils.add(ust));
+      recipe.ustensils.forEach((ust) => ustensils.add(normalizeString(ust)));
     });
 
     // Retourne un objet contenant les ingrédients, appareils et ustensiles uniques
