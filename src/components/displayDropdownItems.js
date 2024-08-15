@@ -1,6 +1,5 @@
 import { getUniqueRecipeComponents } from '../services/api.js';
-import { createDropdownItems } from './createDropdownItems.js';
-import { createDropdown } from './createDropdown.js';
+import { fillDropdownList } from '../utils/fillDropdownList.js';
 import { displayError } from '../utils/displayError.js';
 
 /**
@@ -12,25 +11,19 @@ export async function displayDropdownItems(listContainer) {
     // Récupère les ingrédients, appareils et ustensiles via api.js
     const { ingredients, appliances, ustensils } = await getUniqueRecipeComponents();
 
-    // Crée les dropdowns pour chaque catégorie de listes
-    const ingredientsDropdown = createDropdown('Ingrédients', 'ingredients');
-    const appliancesDropdown = createDropdown('Appareils', 'appliances');
-    const ustensilsDropdown = createDropdown('Ustensiles', 'ustensils');
+    // Remplit les dropdowns pour chaque catégorie de listes
+    // Cette fonction prend trois arguments :
+    // 1. 'title' : Le titre du dropdown qui sera affiché sur le bouton (ex: 'Ingrédients', 'Appareils', 'Ustensiles')
+    // 2. 'containerId' : L'identifiant unique du conteneur du dropdown, utilisé pour lier les éléments à leur dropdown respectif ('ingredients', 'appliances', 'ustensils')
+    // 3. 'items' : Le tableau des éléments à afficher dans le dropdown (une liste d'ingrédients, d'appareils ou d'ustensiles)
+    const ingredientsDropdown = fillDropdownList('Ingrédients', 'ingredients', ingredients);
+    const appliancesDropdown = fillDropdownList('Appareils', 'appliances', appliances);
+    const ustensilsDropdown = fillDropdownList('Ustensiles', 'ustensils', ustensils);
 
     // Ajoute les dropdowns au conteneur de la liste d'éléments
     listContainer.appendChild(ingredientsDropdown);
     listContainer.appendChild(appliancesDropdown);
     listContainer.appendChild(ustensilsDropdown);
-
-    // Affiche les éléments dans les dropdowns respectifs
-    // Cette fonction prend trois arguments :
-    // 1. Le tableau d'éléments à afficher dans le dropdown ('ingredients', 'appliances', 'ustensils')
-    // 2. Le conteneur <ul> du dropdown où les éléments seront ajoutés
-    // 3. Un identifiant unique ('ingredients', 'appliances', 'ustensils')
-    // qui aide à lier chaque dropdown à son contenu pour des opérations comme la réinitialisation de l'ordre des éléments aprés suppressions ou réinsertions
-    createDropdownItems(ingredients, document.getElementById('ingredients-content').querySelector('ul'), 'ingredients');
-    createDropdownItems(appliances, document.getElementById('appliances-content').querySelector('ul'), 'appliances');
-    createDropdownItems(ustensils, document.getElementById('ustensils-content').querySelector('ul'), 'ustensils');
   } catch (error) {
     // Affiche une erreur en cas de problème lors du chargement des éléments
     console.error('Error loading items:', error);
