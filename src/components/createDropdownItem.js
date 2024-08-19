@@ -1,4 +1,4 @@
-import { initialOrder } from '../utils/initialOrder.js';
+import { initialOrder } from '../utils/state/initialOrderState.js';
 import { handleItemClick } from '../handlers/handleItemClick.js';
 
 /**
@@ -22,8 +22,14 @@ export function createDropdownItem(text, index, containerId) {
     initialOrder.set(`${text}-${containerId}`, index);
   }
 
-  // Ajoute un événement click pour la sélection de l'item
-  listItem.addEventListener('click', () => handleItemClick(listItem, text, containerId));
+  // Ajoute un événement 'click' pour la sélection de l'item
+  listItem.addEventListener('click', () => {
+    // Vérifie si l'élément est déjà sélectionné
+    if (!listItem.classList.contains('selected-item')) {
+      // Gère la logique de sélection/dé-sélection des éléments et leur gestion dans selectedItems
+      handleItemClick(listItem, text, containerId);
+    }
+  });
 
   return listItem;
 }

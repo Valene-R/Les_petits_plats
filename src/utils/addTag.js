@@ -4,8 +4,9 @@ import { removeTagAndItem } from './removeTagAndItem.js';
  * Ajoute un tag dans le conteneur de tags
  * @param {String} text Le texte du tag à ajouter
  * @param {String} containerId L'identifiant du conteneur parent
+ * @param {Map} selectedItems La collection des éléments sélectionnés pour gérer l'état
  */
-export function addTag(text, containerId) {
+export function addTag(text, containerId, selectedItems) {
   const tagsContainer = document.getElementById('tags-container');
 
   // Crée un nouvel élément 'div' pour représenter le tag
@@ -36,7 +37,7 @@ export function addTag(text, containerId) {
   removeButton.appendChild(svgCrossTag);
 
   removeButton.addEventListener('click', () => {
-    removeTagAndItem(text, containerId); // Associe le clic du bouton à la suppression du tag et de l'item associé
+    removeTagAndItem(text, containerId, selectedItems); // Associe le clic du bouton à la suppression du tag et met à jour l'état des éléments sélectionnés
   });
 
   tag.appendChild(removeButton);

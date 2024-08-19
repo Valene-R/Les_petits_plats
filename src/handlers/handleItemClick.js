@@ -1,3 +1,4 @@
+import { selectedItems } from '../utils/state/selectedItemsState.js';
 import { addTag } from '../utils/addTag.js';
 import { removeTagAndItem } from '../utils/removeTagAndItem.js';
 
@@ -8,7 +9,16 @@ import { removeTagAndItem } from '../utils/removeTagAndItem.js';
  * @param {String} containerId L'identifiant du conteneur parent
  */
 export function handleItemClick(listItem, text, containerId) {
-  // Vérifie si l'item est déjà sélectionné (croix déjà présente)
+  // Crée une clé unique pour identifier l'élément sélectionné
+  const itemKey = `${containerId}:${text}`;
+
+  // Vérifie que selectedItems est bien une instance de Map
+  if (!selectedItems || !(selectedItems instanceof Map)) {
+    console.error('selectedItems is undefined, null, or not a Map.');
+    return;
+  }
+
+  // Vérifie si l'item est déjà sélectionné (croix de suppression déjà présente)
   if (listItem.querySelector('.remove-btn')) {
     return; // Ne rien faire si l'item est déjà sélectionné
   }
@@ -18,8 +28,8 @@ export function handleItemClick(listItem, text, containerId) {
   dropdownListContainer.prepend(listItem); // Insère listItem comme le premier enfant de dropdownListContainer
 
   // Applique le style pour indiquer que l'élément est sélectionné
-  listItem.classList.add('bg-customYellow', 'text-black', 'font-bold', 'selected-item');
-  listItem.classList.remove('hover:bg-customYellow', 'cursor-pointer');
+  listItem.classList.add('bg-customYellow', 'text-black', 'font-bold', 'selected-item', 'font-h3');
+  listItem.classList.remove('hover:bg-customYellow', 'cursor-pointer', 'font-li');
 
   // Crée un bouton pour supprimer l'élément (croix)
   const removeButton = document.createElement('button');
@@ -32,7 +42,6 @@ export function handleItemClick(listItem, text, containerId) {
   svgCross.setAttribute('height', '17');
   svgCross.setAttribute('viewBox', '0 0 17 17');
   svgCross.setAttribute('fill', 'none');
-  svgCross.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
 
   // Crée l'élément cercle pour le fond de la croix
   const circleCross = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -56,12 +65,18 @@ export function handleItemClick(listItem, text, containerId) {
   // Ajoute un écouteur d'événement pour gérer la suppression de l'item et du tag
   removeButton.addEventListener('click', (e) => {
     e.stopPropagation(); // Empêche le clic de déclencher handleItemClick à nouveau
-    removeTagAndItem(text, containerId); // Supprime à la fois l'item du dropdown et le tag associé
+    removeTagAndItem(text, containerId, selectedItems); // Supprime à la fois l'item du dropdown et le tag associé
+
+    // Vérification que selectedItems est bien défini avant d'essayer de l'utiliser
+    if (selectedItems.has(itemKey)) {
+      selectedItems.delete(itemKey);
+    }
   });
 
   // Ajoute le bouton de suppression (croix) à l'item de liste
   listItem.appendChild(removeButton);
+  selectedItems.set(itemKey, true); // Utilise la clé unique pour stocker l'état
 
   // Ajoute un tag associé à l'item sélectionné en dessous des dropdowns
-  addTag(text, containerId);
+  addTag(text, containerId, selectedItems);
 }

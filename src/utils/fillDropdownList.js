@@ -1,5 +1,6 @@
 import { createDropdownItems } from '../components/createDropdownItems.js';
 import { createDropdown } from '../components/createDropdown.js';
+import { selectedItems } from './state/selectedItemsState.js';
 
 /**
  * Remplit la liste d'un dropdown spécifique
@@ -19,9 +20,6 @@ export function fillDropdownList(title, containerId, items) {
   // Crée le dropdown en utilisant le titre et l'identifiant fournis
   const dropdown = createDropdown(title, containerId, items);
 
-  // Initialise un Set pour suivre les éléments sélectionnés
-  const selectedItems = new Set();
-
   // Récupère le conteneur <ul> où les éléments du dropdown seront insérés
   const dropdownContainer = dropdown.querySelector('ul');
 
@@ -33,6 +31,5 @@ export function fillDropdownList(title, containerId, items) {
     console.error(`Dropdown container with ID ${containerId}-content not found.`);
   }
 
-  // Retourne le dropdown complété
   return dropdown;
 }

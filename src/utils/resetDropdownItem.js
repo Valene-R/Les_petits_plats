@@ -1,5 +1,5 @@
 import { createDropdownItem } from '../components/createDropdownItem.js';
-import { initialOrder } from './initialOrder.js';
+import { initialOrder } from './state/initialOrderState.js';
 
 /**
  * Réinitialise un élément dans la liste du dropdown à sa position d'origine
