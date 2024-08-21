@@ -5,9 +5,9 @@
  */
 export function recipeCard(recipe) {
   // Crée l'élément principal de la carte
-  const card = document.createElement('div');
+  const card = document.createElement('article');
   card.className =
-    'w-full max-w-[380px] h-[731px] rounded-radius21 overflow-hidden shadow-custom-card m-6 mt-10 bg-white';
+    'recipe-card w-full max-w-[380px] h-[731px] rounded-radius21 overflow-hidden shadow-custom-card m-6 mt-10 bg-white';
 
   // Crée le conteneur de l'image
   const imageContainer = document.createElement('div');
@@ -41,17 +41,17 @@ export function recipeCard(recipe) {
 
   // Ajoute un titre pour la description
   const descriptionTitle = document.createElement('h3');
-  descriptionTitle.className = 'text-xs font-h3 text-gray-400 mt-4 mb-4';
+  descriptionTitle.className = 'text-xs font-h3 text-customGrey mt-4 mb-4';
   descriptionTitle.textContent = 'RECETTE';
 
   // Ajoute la description de la recette
   const cardText = document.createElement('p');
-  cardText.className = 'text-gray-700 text-base line-clamp-4 mb-8';
+  cardText.className = 'text-black text-sm line-clamp-4 mb-8 font-li';
   cardText.textContent = recipe.description;
 
   // Ajoute un titre pour les ingrédients
   const ingredientsTitle = document.createElement('h3');
-  ingredientsTitle.className = 'text-xs font-h3 text-gray-400 mt-4';
+  ingredientsTitle.className = 'text-xs font-h3 text-customGrey mt-4';
   ingredientsTitle.textContent = 'INGRÉDIENTS';
 
   // Crée la liste des ingrédients
@@ -68,7 +68,7 @@ export function recipeCard(recipe) {
     ingredientName.textContent = ingredient.ingredient;
 
     const ingredientQuantity = document.createElement('span');
-    ingredientQuantity.className = 'text-gray-400 text-sm';
+    ingredientQuantity.className = 'text-customGrey text-sm';
     // Vérifie si la quantité est définie, sinon affiche '-'
     const quantity = ingredient.quantity != null ? ingredient.quantity : '-';
     // Vérifie si l'unité est définie, sinon affiche une chaîne vide

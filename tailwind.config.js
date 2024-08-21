@@ -27,21 +27,26 @@ export default {
       colors: {
         customYellow: '#FFD15B',
         customLightGrey: '#EDEDED',
+        customGrey: '#7A7A7A', //rgba(122, 122, 122, 1)
       },
       fontFamily: {
         display: ['Anton', 'sans-serif'],
         h3: ['Manrope', 'sans-serif'],
         list: ['Manrope', 'sans-serif'],
         li: ['Manrope', 'sans-serif'],
+        search: ['Manrope', 'sans-serif'],
       },
       fontWeight: {
         display: '400',
         h3: '700',
         list: '500',
         li: '400',
+        search: '400',
       },
       screens: {
         'between-lg': { min: '1430px', max: '1440px' },
+        'xs-sm': { min: '320px', max: '1122px' },
+        'xs-sm-col': { min: '320px', max: '1026px' },
       },
       boxShadow: {
         'custom-card': '0px 4px 34px 30px rgba(0, 0, 0, 0.04)',

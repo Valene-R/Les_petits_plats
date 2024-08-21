@@ -28,7 +28,7 @@ export function createDropdown(title, id, items) {
   // Crée le bouton du dropdown
   const button = document.createElement('button');
   button.className =
-    'inline-flex justify-between w-full text-base px-4 py-4 h-14 gap-16 items-center font-list border-none text-black bg-white rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none';
+    'min-w-72 md:min-w-0 inline-flex justify-between w-full text-base px-4 py-4 h-14 gap-16 items-center font-list border-none text-black bg-white rounded-xl shadow-sm hover:bg-gray-50 focus:outline-none';
   button.id = `${id}-button`;
   button.setAttribute('aria-haspopup', 'listbox'); // Attribut pour indiquer que le bouton ouvre une listbox
   button.setAttribute('aria-expanded', 'false'); // Attribut pour indiquer si le dropdown est ouvert ou fermé
@@ -67,7 +67,7 @@ export function createDropdown(title, id, items) {
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
   searchInput.placeholder = '';
-  searchInput.className = 'w-full py-1 h-9 focus:outline-none border-t border-b';
+  searchInput.className = 'w-full py-1 h-9 focus:outline-none border-t border-b text-customGrey font-search text-sm';
   searchInput.id = `${id}-search`;
 
   // Crée le bouton croix pour effacer la saisie dans le champs de recherche
@@ -87,8 +87,8 @@ export function createDropdown(title, id, items) {
   clearPath.setAttribute('stroke', '#7A7A7A');
   clearPath.setAttribute('stroke-linecap', 'round');
   clearPath.setAttribute('stroke-linejoin', 'round');
-  clearIcon.appendChild(clearPath);
 
+  clearIcon.appendChild(clearPath);
   clearButton.appendChild(clearIcon);
 
   // Crée le bouton de recherche avec une icône loupe
