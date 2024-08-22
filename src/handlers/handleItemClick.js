@@ -67,9 +67,9 @@ export function handleItemClick(listItem, text, containerId) {
     e.stopPropagation(); // Empêche le clic de déclencher handleItemClick à nouveau
     removeTagAndItem(text, containerId, selectedItems); // Supprime à la fois l'item du dropdown et le tag associé
 
-    // Vérification que selectedItems est bien défini avant d'essayer de l'utiliser
+    // Vérifie si l'élément est présent dans selectedItems avant de le supprimer
     if (selectedItems.has(itemKey)) {
-      selectedItems.delete(itemKey);
+      selectedItems.delete(itemKey); // Supprime l'élément de la Map selectedItems
     }
   });
 
