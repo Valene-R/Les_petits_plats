@@ -5,6 +5,7 @@ import tailwindcss from 'eslint-plugin-tailwindcss';
 
 export default [
   {
+    ignores: ['dist/**/*'],
     languageOptions: {
       globals: globals.browser,
     },

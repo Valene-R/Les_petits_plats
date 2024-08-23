@@ -46,6 +46,9 @@ Pour assurer une expérience de développement cohérente, appliquez les configu
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
+  "eslint.options": {
+    "ignorePattern": ["dist/**/*"]
+  },
   "tailwindCSS.includeLanguages": {
     "plaintext": "html",
     "javascript": "javascript",
