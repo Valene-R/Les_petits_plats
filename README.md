@@ -57,6 +57,11 @@ Pour assurer une expérience de développement cohérente, appliquez les configu
   "editor.quickSuggestions": {
     "strings": true
   },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "tailwindCSS.experimental.configFile": "./tailwind.config.js",
+  "tailwindCSS.experimental.classRegex": ["\\bclass(?:Name)?\\s*=\\s*[\"'`]([^\"'`]*).*?[\"'`]"],
   "tailwindCSS.colorDecorators": true,
   "tailwindCSS.showPixelEquivalents": true,
   "css.lint.vendorPrefix": "ignore",
@@ -82,6 +87,8 @@ $ npm run dev
 
 Pour créer une version en production, qui génère un fichier optimisé `.css` dans un dossier `dist/`, exécutez :
 $ npm run build
+
+Le dossier `dist` est ignoré par défaut pendant le développement.
 
 Pour prévisualiser la version en production, exécutez :
 $ npm run preview
