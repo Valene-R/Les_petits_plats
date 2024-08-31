@@ -15,7 +15,7 @@ export async function displayRecipeCards(recipesContainer, recipes = [], query =
   }
 
   // Si aucune recette n'est trouvée et qu'une requête de recherche a été utilisée, affiche un message d'erreur
-  if (recipes.length === 0 && query.length > 0) {
+  if (recipes.length === 0 && query.length >= 3) {
     const errorMessage = `Aucune recette ne contient "${query}". Vous pouvez chercher "tarte aux pommes", "poisson", etc.`;
     displayError(recipesContainer, errorMessage);
     return;

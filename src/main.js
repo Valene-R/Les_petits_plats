@@ -24,20 +24,15 @@ async function handleSearch(event) {
 
   const searchQuery = document.getElementById('search').value.trim(); // Récupère et nettoie la requête de recherche
   const recipeCardsContainer = document.getElementById('recipe-cards-container');
-  const noResultsMessageContainer = document.getElementById('no-results-message');
 
   let searchResults;
+
   if (searchQuery === '') {
     // Récupère toutes les recettes si aucune recherche n'est faite
     searchResults = await getRecipes();
   } else {
     // Sinon, recherche les recettes correspondant à la requête
     searchResults = await mainRecipeSearch(searchQuery, true); // Recherche stricte par mot complet
-  }
-
-  // Réinitialise le conteneur des messages d'erreur précédents
-  if (noResultsMessageContainer) {
-    noResultsMessageContainer.textContent = '';
   }
 
   // Affiche les résultats de recherche ou un message d'erreur si aucun résultat n'est trouvé
@@ -65,7 +60,6 @@ async function init() {
   const recipeCardsContainer = document.getElementById('recipe-cards-container');
   const searchInput = document.getElementById('search');
   const clearButton = document.querySelector('button[aria-label="Clear search"]');
-  const noResultsMessageContainer = document.getElementById('no-results-message');
 
   try {
     // Affiche les dropdowns de filtrage dans le conteneur
@@ -94,13 +88,15 @@ async function init() {
 
       if (searchResults.length === 0) {
         // Affiche un message si aucune recette ne correspond à la recherche
-        noResultsMessageContainer.textContent = `Aucune recette ne contient "${searchInput.value}". Vous pouvez essayer de chercher "tarte aux pommes", "poisson", etc.`;
+        displayError(
+          recipeCardsContainer,
+          `Aucune recette ne contient "${searchInput.value}". Vous pouvez chercher "tarte aux pommes", "poisson", etc.`,
+        );
       }
     } else {
       clearButton.classList.add('hidden');
       const allRecipes = await getRecipes(); // Recharge toutes les recettes
       displayRecipeCards(recipeCardsContainer, allRecipes);
-      noResultsMessageContainer.textContent = ''; // Réinitialise le message d'erreur
     }
     updateRecipeCount(); // Met à jour le nombre de recettes affichées
   });
@@ -112,7 +108,6 @@ async function init() {
 
     getRecipes().then((allRecipes) => {
       displayRecipeCards(recipeCardsContainer, allRecipes); // Affiche toutes les recettes après réinitialisation
-      noResultsMessageContainer.textContent = ''; // Réinitialise le message d'erreur
       updateRecipeCount(); // Met à jour le nombre de recettes affichées
     });
   });
