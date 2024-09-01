@@ -16,6 +16,26 @@ function resetSearchButton() {
 }
 
 /**
+ * Configure le bouton de suppression du champ de recherche et gère la réinitialisation des recettes
+ * @param {HTMLElement} clearButton Le bouton de suppression
+ * @param {HTMLElement} searchForm Le formulaire de recherche
+ * @param {HTMLElement} recipeCardsContainer Le conteneur des cartes de recettes
+ */
+function configClearButton(clearButton, searchForm, recipeCardsContainer) {
+  // Ajoute l'écouteur d'événement pour gérer la réinitialisation du champ de recherche
+  clearButton.addEventListener('click', () => {
+    searchForm.reset(); // Réinitialise le formulaire
+    clearButton.classList.add('hidden'); // Cache le bouton de suppression
+
+    // Recharge toutes les recettes après réinitialisation du champ de recherche
+    getRecipes().then((allRecipes) => {
+      displayRecipeCards(recipeCardsContainer, allRecipes);
+      updateRecipeCount(); // Met à jour le nombre de recettes affichées
+    });
+  });
+}
+
+/**
  * Gère la recherche lors de la soumission du formulaire
  * @param {Event} event L'événement de soumission du formulaire
  */
@@ -60,6 +80,7 @@ async function init() {
   const recipeCardsContainer = document.getElementById('recipe-cards-container');
   const searchInput = document.getElementById('search');
   const clearButton = document.querySelector('button[aria-label="Clear search"]');
+  const searchForm = document.querySelector('form');
 
   try {
     // Affiche les dropdowns de filtrage dans le conteneur
@@ -74,7 +95,6 @@ async function init() {
     displayError(recipeCardsContainer, 'Échec du chargement des recettes. Veuillez réessayer plus tard.');
   }
 
-  const searchForm = document.querySelector('form');
   searchForm.addEventListener('submit', handleSearch); // Ajoute un écouteur d'événement pour gérer la soumission du formulaire de recherche
 
   // Gère la recherche en temps réel lors de la saisie dans le champ principal de recherche
@@ -101,16 +121,7 @@ async function init() {
     updateRecipeCount(); // Met à jour le nombre de recettes affichées
   });
 
-  // Gère le clic sur le bouton de suppression pour vider la saisie et réinitialiser l'affichage des recettes
-  clearButton.addEventListener('click', () => {
-    searchForm.reset(); // Réinitialise le formulaire
-    clearButton.classList.add('hidden');
-
-    getRecipes().then((allRecipes) => {
-      displayRecipeCards(recipeCardsContainer, allRecipes); // Affiche toutes les recettes après réinitialisation
-      updateRecipeCount(); // Met à jour le nombre de recettes affichées
-    });
-  });
+  configClearButton(clearButton, searchForm, recipeCardsContainer);
 }
 
 init();
