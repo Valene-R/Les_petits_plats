@@ -1,5 +1,5 @@
 import { getRecipes } from '../services/api.js';
-import { normalizeString } from './normalizeString.js';
+import { normalizeForSearch } from './normalizeString.js';
 import { filterListItems } from './filterListItems.js';
 
 /**
@@ -15,8 +15,8 @@ export async function mainRecipeSearch(query, strictSearch = false) {
   // Initialise un tableau pour stocker les recettes trouvées
   const recipesFound = [];
 
-  // Normalise la chaîne de recherche pour assurer une comparaison insensible à la casse
-  const normalizedQuery = normalizeString(query || '').toLowerCase(); // Assure que query est une chaîne vide si undefined
+  // Normalise la chaîne de recherche pour assurer une comparaison insensible à la casse et aux accents
+  const normalizedQuery = normalizeForSearch(query || '');
 
   // Parcourt toutes les recettes pour trouver des correspondances
   for (let i = 0; i < recipes.length; i++) {
@@ -24,11 +24,9 @@ export async function mainRecipeSearch(query, strictSearch = false) {
     const recipe = recipes[i];
 
     // Vérifie que les propriétés existent avant de les normaliser
-    const name = recipe.name ? normalizeString(recipe.name).toLowerCase() : '';
-    const description = recipe.description ? normalizeString(recipe.description).toLowerCase() : '';
-    const ingredients = recipe.ingredients
-      ? recipe.ingredients.map((ing) => normalizeString(ing.ingredient).toLowerCase())
-      : [];
+    const name = recipe.name ? normalizeForSearch(recipe.name) : '';
+    const description = recipe.description ? normalizeForSearch(recipe.description) : '';
+    const ingredients = recipe.ingredients ? recipe.ingredients.map((ing) => normalizeForSearch(ing.ingredient)) : [];
 
     // Vérifie si la requête de recherche correspond au titre, à la description ou aux ingrédients
     const nameMatch = filterListItems([name], normalizedQuery, 3, strictSearch);
