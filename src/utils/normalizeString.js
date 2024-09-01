@@ -22,3 +22,17 @@ export function normalizeString(stringToNormalize) {
 
   return normalizedString;
 }
+
+/**
+ * Normalise une chaîne de caractères spécifiquement pour la recherche
+ * @param {string} stringToNormalize La chaîne de caractères à normaliser pour la recherche
+ * @returns {string} La chaîne normalisée pour la recherche
+ */
+export function normalizeForSearch(stringToNormalize) {
+  return stringToNormalize
+    .toLowerCase() // Convertit toute la chaîne en minuscules
+    .normalize('NFD') // Décompose les caractères accentués en base + diacritiques (é -> e + accent)
+    .replace(/[\u0300-\u036f]/g, '') // Supprime les diacritiques (accents)
+    .replace(/ç/g, 'c') // Remplace la cédille "ç" par un simple "c"
+    .trim(); // Supprime les espaces en trop au début et à la fin
+}

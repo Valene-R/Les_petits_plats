@@ -35,14 +35,14 @@
         </h1>
         <!-- search bar -->
         <div class="relative mt-8 w-full max-w-954">
-          <form class="xs-sm:mx-3 flex h-72px items-center rounded-radius10 bg-white">
+          <form class="flex h-72px items-center rounded-radius10 bg-white xs-sm:mx-3">
             <label for="search" class="sr-only">Recherche</label>
             <input
               id="search"
               type="text"
               name="search"
               placeholder="Rechercher une recette, un ingrédient, ..."
-              class="font-search text-customGrey w-full truncate rounded-xl py-6 pl-9 text-base focus:outline-none"
+              class="w-full truncate rounded-xl py-6 pl-9 font-search text-base text-customGrey focus:outline-none"
             />
             <button type="button" class="hidden" aria-label="Clear search">
               <svg width="17" height="17" viewBox="0 0 17 17" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -78,19 +78,19 @@
     </header>
     <main class="flex flex-col bg-customLightGrey">
       <section
-        class="xs-sm-col:flex-col-reverse xs-sm-col:gap-4 mt-5 flex flex-row items-center justify-between gap-16 md:ml-10 md:max-w-[1234px] md:gap-12 lg:ml-[104px] lg:mr-[104px] lg:gap-16"
+        class="mt-5 flex flex-row items-center justify-between gap-16 md:ml-10 md:max-w-[1234px] md:gap-12 lg:ml-[104px] lg:mr-[104px] lg:gap-16 xs-sm-col:flex-col-reverse xs-sm-col:gap-4"
       >
         <h2 class="sr-only">Filtres de recherche et nombre de recettes affichées</h2>
         <div
           id="filter-dropdown-section"
           class="flex w-full flex-col items-center justify-start gap-8 md:flex-row md:gap-12 lg:gap-16"
         ></div>
-        <div id="recipe-count-container" class="xs-sm-col:justify-center flex w-full justify-end lg:ml-[104px]">
+        <div id="recipe-count-container" class="flex w-full justify-end lg:ml-[104px] xs-sm-col:justify-center">
           <span id="recipe-count" class="text max-w-28 font-display text-xl font-bold"></span>
         </div>
       </section>
 
-      <div id="tags-container" class="xs-sm:mx-3 m-auto mt-5 flex flex-wrap gap-2 md:ml-10 lg:ml-[104px]"></div>
+      <div id="tags-container" class="m-auto mt-5 flex flex-wrap gap-2 md:ml-10 lg:ml-[104px] xs-sm:mx-3"></div>
 
       <section id="recipe-cards-container" class="flex w-full flex-wrap justify-center">
         <h2 class="sr-only">Liste des recettes</h2>
