@@ -2,6 +2,8 @@ import { toggleDropdown } from '../utils/toggleDropdown.js';
 import { filterListItems } from '../utils/filterListItems.js';
 import { selectedItems } from '../utils/state/selectedItemsState.js';
 import { createDropdownItem } from './createDropdownItem.js';
+import { getMainSearchPerformed } from '../utils/state/mainSearchState.js';
+import { filteredDropdownItems } from '../utils/state/filteredDropdownItems.js';
 
 /**
  * Crée un menu déroulant pour les éléments de sélection (catégories : ingrédients, appareils, ustensiles)
@@ -133,11 +135,18 @@ export function createDropdown(title, id, items) {
    * @param {String} searchQuery La requête de recherche. Par défaut, c'est une chaîne vide car aucun filtre n'est appliqué
    * @param {Array} items La liste des items à afficher
    * @param {String} containerId L'identifiant du conteneur (ingrédients, appareils, ustensiles) pour associer les éléments à la bonne catégorie
+   * @param {Number} [minLength=3] Le nombre minimum de caractères pour déclencher la recherche dans les items
    */
-  function updateDropdownItems(searchQuery = '', items = [], containerId) {
-    // Vérifie que items est bien un tableau
-    if (!Array.isArray(items)) {
-      console.error('Expected an array for items, but got:', items);
+  function updateDropdownItems(searchQuery = '', items = [], containerId, minLength = 3) {
+    const mainSearchPerformed = getMainSearchPerformed();
+
+    // Utilise les items filtrés si la recherche principale a été effectuée
+    const filteredItemsToUse =
+      mainSearchPerformed && filteredDropdownItems[containerId].length > 0 ? filteredDropdownItems[containerId] : items;
+
+    // Vérifie que 'filteredItemsToUse' est bien un tableau
+    if (!Array.isArray(filteredItemsToUse)) {
+      console.error('Expected an array for items in ${containerId}, but got:', filteredItemsToUse);
       return;
     }
 
@@ -147,8 +156,8 @@ export function createDropdown(title, id, items) {
     // Supprime ces éléments du DOM, laissant uniquement les éléments sélectionnés
     noSelectedItems.forEach((item) => item.remove());
 
-    // Filtre les éléments en fonction de la requête de recherche
-    let filteredItems = filterListItems(items, searchQuery);
+    // Filtre les éléments en fonction de la requête de recherche avec minLength adapté
+    const filteredItems = filterListItems(filteredItemsToUse, searchQuery, minLength);
 
     // Ajoute les éléments sélectionnés en tête de liste, même s'ils ne correspondent pas à la requête
     selectedItems.forEach((_, itemKey) => {
@@ -182,7 +191,12 @@ export function createDropdown(title, id, items) {
   // Gère l'entrée dans le champ de recherche pour filtrer les items
   searchInput.addEventListener('input', () => {
     const searchQuery = searchInput.value;
-    updateDropdownItems(searchQuery, items, id); // Met à jour les items affichés dans le dropdown en fonction de la recherche
+
+    // Si la recherche principale a été effectuée, filtre dès le premier caractère, sinon à partir de 3 caractères
+    const minLength = getMainSearchPerformed() ? 1 : 3;
+
+    // Met à jour les items affichés dans le dropdown en fonction de la recherche
+    updateDropdownItems(searchQuery, items, id, minLength);
 
     // Affiche ou cache le bouton de suppression en fonction de la présence de texte dans le champ
     if (searchQuery.length > 0) {
@@ -199,7 +213,7 @@ export function createDropdown(title, id, items) {
     searchInput.focus();
 
     // Réinitialise la liste des items dans le dropdown après effacement du champ de recherche
-    updateDropdownItems('', items, id);
+    updateDropdownItems('', filteredDropdownItems[id], id);
   });
 
   // Initialise le dropdown en affichant tous les items
