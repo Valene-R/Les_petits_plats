@@ -4,6 +4,8 @@ import { normalizeString } from './normalizeString.js';
 import { displayError } from './displayError.js';
 import { updateAllDropdownsItems } from './updateAllDropdownsItems.js';
 import { getCurrentRecipes } from './state/currentRecipes.js';
+import { getRecipes } from '../services/api.js';
+import { updateFilteredDropdownItems } from './state/filteredDropdownItems.js';
 
 /**
  * Filtre les recettes en fonction des tags sélectionnés (ingrédients, appareils, ustensiles)
@@ -13,18 +15,32 @@ import { getCurrentRecipes } from './state/currentRecipes.js';
  * @returns {Promise<Array<Object>>} Retourne un tableau des recettes filtrées. Si aucune recette ne correspond, retourne un tableau vide
  */
 export async function filterRecipesByTags(selectedItems, recipes = null) {
-  // Utilise la liste des recettes fournie ou toutes les recettes sauvegardées si aucune liste n'est fournie
-  const allRecipes = recipes || getCurrentRecipes(); // Utilise la fonction pour obtenir les recettes actuellement sauvegardées
+  let allRecipes;
 
-  // Vérifie s'il y a des recettes à filtrer
-  if (!allRecipes || allRecipes.length === 0) {
-    return [];
+  // Si aucune recette n'est passée en paramètre, utilise les recettes affichées actuellement
+  if (!recipes) {
+    const currentRecipes = getCurrentRecipes();
+
+    // Si des recettes sont déjà affichées, utilise-les
+    if (Array.isArray(currentRecipes) && currentRecipes.length > 0) {
+      allRecipes = currentRecipes;
+    } else {
+      // Si aucune recette n'est affichée, récupére toutes les recettes via api.js
+      allRecipes = await getRecipes();
+    }
+  } else {
+    allRecipes = recipes;
   }
 
-  // Vérifie si allRecipes est bien un tableau
-  if (!Array.isArray(allRecipes)) {
-    console.error('allRecipes must be an array to use the filter method:', allRecipes);
-    return [];
+  // Si aucun tag n'est sélectionné, retourne toutes les recettes
+  if (selectedItems.size === 0) {
+    displayRecipeCards(document.getElementById('recipe-cards-container'), allRecipes);
+    updateRecipeCount(allRecipes.length);
+    updateAllDropdownsItems(allRecipes, document.getElementById('filter-dropdown-section'));
+
+    // Appelle updateFilteredDropdownItems pour synchroniser les dropdowns avec toutes les recettes
+    await updateFilteredDropdownItems(allRecipes);
+    return allRecipes; // Retourne toutes les recettes sans filtrage
   }
 
   // Crée des tableaux pour stocker les tags par catégorie
@@ -32,10 +48,13 @@ export async function filterRecipesByTags(selectedItems, recipes = null) {
   const appliancesTags = [];
   const ustensilsTags = [];
 
-  // Parcourt des 'selectedItems' pour extraire les tags en fonction de leur containerId
+  // Parcourt les 'selectedItems' pour extraire les tags en fonction de leur containerId
   selectedItems.forEach((_, itemKey) => {
+    // Sépare la clé (itemKey) en deux parties : containerId (catégorie de l'élément) et itemText (texte de l'élément)
     const [containerId, itemText] = itemKey.split(':');
+    // Vérifie si l'élément appartient à la catégorie "ingrédients"
     if (containerId === 'ingredients') {
+      // Ajoute l'élément dans le tableau des ingrédients après l'avoir normalisé
       ingredientsTags.push(normalizeString(itemText));
     } else if (containerId === 'appliances') {
       appliancesTags.push(normalizeString(itemText));
@@ -53,20 +72,20 @@ export async function filterRecipesByTags(selectedItems, recipes = null) {
 
     // Vérifie que tous les appareils sélectionnés sont présents dans la recette
     const matchesAppliances =
-      appliancesTags.length === 0 || appliancesTags.every((tag) => normalizeString(recipe.appliance) === tag);
+      appliancesTags.length === 0 ||
+      appliancesTags.every((tag) => normalizeString(recipe.appliance) === normalizeString(tag));
 
     // Vérifie que tous les ustensiles sélectionnés sont présents dans la recette
     const matchesUstensils =
       ustensilsTags.length === 0 ||
       ustensilsTags.every((tag) => recipe.ustensils.some((ust) => normalizeString(ust) === tag));
 
-    // Retourne true uniquement si tous les critères sont respectés
+    // Retourne uniquement les recettes qui correspondent à tous les critères
     return matchesIngredients && matchesAppliances && matchesUstensils;
   });
 
-  // Sélectionne le conteneur des cartes de recettes
+  // Met à jour l'interface utilisateur selon le résultat du filtrage
   const recipeCardsContainer = document.getElementById('recipe-cards-container');
-
   if (filteredRecipes.length === 0) {
     // Affiche un message d'erreur si aucune recette n'est trouvée
     displayError(recipeCardsContainer, 'Aucune recette ne correspond aux critères sélectionnés.');
@@ -77,8 +96,14 @@ export async function filterRecipesByTags(selectedItems, recipes = null) {
     displayRecipeCards(recipeCardsContainer, filteredRecipes);
     // Met à jour du nombre de recettes affichées
     updateRecipeCount(filteredRecipes.length);
-    // Met à jour les dropdowns avec les nouvelles recettes filtrées
-    updateAllDropdownsItems(filteredRecipes, document.getElementById('filter-dropdown-section'));
+  }
+
+  // Met à jour les dropdowns avec les recettes filtrées
+  updateAllDropdownsItems(filteredRecipes, document.getElementById('filter-dropdown-section'));
+
+  // Met à jour l'état des items filtrés
+  if (filteredRecipes.length > 0) {
+    await updateFilteredDropdownItems(filteredRecipes);
   }
 
   return filteredRecipes;

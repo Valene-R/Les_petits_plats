@@ -3,7 +3,12 @@ import { filterListItems } from '../utils/filterListItems.js';
 import { selectedItems } from '../utils/state/selectedItemsState.js';
 import { createDropdownItem } from './createDropdownItem.js';
 import { getMainSearchPerformed } from '../utils/state/mainSearchState.js';
-import { filteredDropdownItems } from '../utils/state/filteredDropdownItems.js';
+import { getFilteredDropdownItems, updateFilteredDropdownItems } from '../utils/state/filteredDropdownItems.js';
+import { updateAllDropdownsItems } from '../utils/updateAllDropdownsItems.js';
+import { getCurrentRecipes } from '../utils/state/currentRecipes.js';
+import { getRecipes } from '../services/api.js';
+import { displayRecipeCards } from './displayRecipeCards.js';
+import { updateRecipeCount } from '../utils/updateRecipeCount.js';
 
 /**
  * Crée un menu déroulant pour les éléments de sélection (catégories : ingrédients, appareils, ustensiles)
@@ -68,13 +73,14 @@ export function createDropdown(title, id, items) {
   const searchInput = document.createElement('input');
   searchInput.type = 'text';
   searchInput.placeholder = '';
-  searchInput.className = 'w-full py-1 h-9 focus:outline-none border-t border-b text-customGrey font-search text-sm';
+  searchInput.className =
+    'search-input w-full py-1 h-9 focus:outline-none border-t border-b text-customGrey font-search text-sm';
   searchInput.id = `${id}-search`;
 
   // Crée le bouton croix pour effacer la saisie dans le champs de recherche
   const clearButton = document.createElement('button');
   clearButton.type = 'button';
-  clearButton.className = 'hidden items-center justify-center';
+  clearButton.className = 'hidden items-center justify-center clear-button';
 
   // Crée l'icône de la croix en utilisant createElementNS pour plus de sécurité
   const clearIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -118,8 +124,34 @@ export function createDropdown(title, id, items) {
 
   // Crée le conteneur pour les éléments de sélection dans le dropdown
   const itemsContainer = document.createElement('ul');
-  itemsContainer.className = 'py-1 list-none max-h-[251px] overflow-y-auto hide-scrollbar';
+  itemsContainer.className = 'py-1 list-none max-h-[251px] overflow-y-auto hide-scrollbar dropdown-items';
   itemsContainer.setAttribute('role', 'listbox');
+
+  // Ajoute les items à la liste et gère la sélection
+  items.forEach((item, index) => {
+    const listItem = createDropdownItem(item, index, id, false);
+
+    listItem.addEventListener('click', () => {
+      const itemKey = `${id}:${item}`;
+
+      // Ajoute ou retire un item de la sélection
+      if (selectedItems.has(itemKey)) {
+        selectedItems.delete(itemKey);
+      } else {
+        selectedItems.set(itemKey, true);
+      }
+
+      // Filtre les recettes en fonction des éléments sélectionnés
+      filterRecipesByTags(selectedItems).then((filteredRecipes) => {
+        if (filteredRecipes.length > 0) {
+          updateAllDropdownsItems(filteredRecipes, document.getElementById('filter-dropdown-section'));
+          reapplySelectedItems(); // Réapplique la sélection des items après le filtrage
+        }
+      });
+    });
+
+    itemsContainer.appendChild(listItem);
+  });
 
   // Ajoute les éléments au contenu du dropdown
   dropdownContent.appendChild(searchContainer);
@@ -140,13 +172,14 @@ export function createDropdown(title, id, items) {
   function updateDropdownItems(searchQuery = '', items = [], containerId, minLength = 3) {
     const mainSearchPerformed = getMainSearchPerformed();
 
-    // Utilise les items filtrés si la recherche principale a été effectuée
-    const filteredItemsToUse =
-      mainSearchPerformed && filteredDropdownItems[containerId].length > 0 ? filteredDropdownItems[containerId] : items;
+    // Si la recherche principale a été effectuée, la recherche dynamique doit se faire dès le premier caractère
+    const effectiveMinLength = mainSearchPerformed ? 1 : minLength;
+
+    const filteredItemsToUse = getFilteredDropdownItems()[containerId] || items;
 
     // Vérifie que 'filteredItemsToUse' est bien un tableau
     if (!Array.isArray(filteredItemsToUse)) {
-      console.error('Expected an array for items in ${containerId}, but got:', filteredItemsToUse);
+      console.error(`Expected an array for items in ${containerId}, but got:`, filteredItemsToUse);
       return;
     }
 
@@ -157,7 +190,7 @@ export function createDropdown(title, id, items) {
     noSelectedItems.forEach((item) => item.remove());
 
     // Filtre les éléments en fonction de la requête de recherche avec minLength adapté
-    const filteredItems = filterListItems(filteredItemsToUse, searchQuery, minLength);
+    const filteredItemsBySearch = filterListItems(filteredItemsToUse, searchQuery, effectiveMinLength);
 
     // Ajoute les éléments sélectionnés en tête de liste, même s'ils ne correspondent pas à la requête
     selectedItems.forEach((_, itemKey) => {
@@ -175,8 +208,7 @@ export function createDropdown(title, id, items) {
       }
     });
 
-    // Ajoute les éléments filtrés qui ne sont ni déjà sélectionnés ni déjà présents dans la liste des éléments affichés
-    filteredItems.forEach((item, index) => {
+    filteredItemsBySearch.forEach((item, index) => {
       const itemKey = `${containerId}:${item}`; // Crée une clé unique pour l'item en combinant containerId et item
 
       // Vérifie si l'item n'est pas déjà sélectionné
@@ -188,36 +220,91 @@ export function createDropdown(title, id, items) {
     });
   }
 
-  // Gère l'entrée dans le champ de recherche pour filtrer les items
+  // Gère l'entrée dans le champ de recherche pour filtrer dynamiquement les items en fonction de la recherche
   searchInput.addEventListener('input', () => {
     const searchQuery = searchInput.value;
 
     // Si la recherche principale a été effectuée, filtre dès le premier caractère, sinon à partir de 3 caractères
     const minLength = getMainSearchPerformed() ? 1 : 3;
 
-    // Met à jour les items affichés dans le dropdown en fonction de la recherche
-    updateDropdownItems(searchQuery, items, id, minLength);
+    // Vérifie si la recherche principale a été effectuée
+    const mainSearchPerformed = getMainSearchPerformed();
+
+    // Récupère les éléments filtrés pour la catégorie actuelle (id)
+    let filteredItems = getFilteredDropdownItems()[id];
+
+    // Si la recherche principale n'a pas été effectuée
+    if (!mainSearchPerformed) {
+      // Récupère les recettes actuellement affichées (filtrées ou non)
+      const currentRecipes = getCurrentRecipes();
+
+      if (!filteredItems || filteredItems.length === 0) {
+        // Si aucun item filtré, met à jour les éléments filtrés en fonction des recettes actuellement affichées
+        updateFilteredDropdownItems(currentRecipes).then(() => {
+          filteredItems = getFilteredDropdownItems()[id] || items; // Utilise les items par défaut si aucun item filtré
+          updateDropdownItems(searchQuery, filteredItems, id, minLength); // Met à jour le dropdown avec les éléments filtrés
+        });
+      } else {
+        // Sinon, met à jour les éléments avec les items filtrés
+        updateDropdownItems(searchQuery, filteredItems, id, minLength);
+      }
+    } else {
+      // Si la recherche principale a été effectuée
+      updateDropdownItems(searchQuery, filteredItems, id, minLength);
+    }
 
     // Affiche ou cache le bouton de suppression en fonction de la présence de texte dans le champ
-    if (searchQuery.length > 0) {
-      clearButton.classList.remove('hidden');
-    } else {
-      clearButton.classList.add('hidden');
-    }
+    clearButton.classList.toggle('hidden', searchQuery.length === 0);
   });
 
   // Gère le clic sur le bouton de suppression pour effacer le champ de recherche
-  clearButton.addEventListener('click', () => {
+  clearButton.addEventListener('click', async () => {
+    // Réinitialise le champ de recherche
     searchInput.value = '';
     clearButton.classList.add('hidden');
     searchInput.focus();
 
-    // Réinitialise la liste des items dans le dropdown après effacement du champ de recherche
-    updateDropdownItems('', filteredDropdownItems[id], id);
+    // CAS 1 : Si des tags sont sélectionnés, utilise les recettes filtrées par les tags
+    if (selectedItems.size > 0) {
+      const filteredRecipes = getCurrentRecipes(); // Utilise les recettes filtrées actuellement affichées
+
+      // Met à jour les items filtrés pour les dropdowns en fonction des recettes actuelles
+      await updateFilteredDropdownItems(filteredRecipes);
+      const filteredItems = getFilteredDropdownItems()[id] || items; // Récupère les items mis à jour ou ceux par défaut
+      updateDropdownItems('', filteredItems, id); // Met à jour les items du dropdown correspondant à la catégorie
+    } else {
+      // CAS 2 : Aucun tag sélectionné, vérifie si une recherche principale a été effectuée
+      const mainSearchPerformed = getMainSearchPerformed();
+
+      // CAS 2.1 : Si une recherche principale a été effectuée
+      if (mainSearchPerformed) {
+        const displayedRecipes = getCurrentRecipes(); // Récupère les recettes issues de la recherche principale
+
+        // Met à jour les éléments filtrés pour les dropdowns en fonction des recettes issues de la recherche principale
+        await updateFilteredDropdownItems(displayedRecipes);
+        const filteredItems = getFilteredDropdownItems()[id] || items;
+        updateDropdownItems('', filteredItems, id); // Met à jour les items du dropdown
+      } else {
+        // CAS 2.2 : Si aucune recherche principale n'a été effectuée, récupère toutes les recettes
+        const allRecipes = await getRecipes();
+
+        // Met à jour les items filtrés pour les dropdowns avec toutes les recettes
+        await updateFilteredDropdownItems(allRecipes);
+        const filteredItems = getFilteredDropdownItems()[id] || items;
+        updateDropdownItems('', filteredItems, id); // Met à jour les items du dropdown
+
+        // Met à jour l'affichage des recettes
+        displayRecipeCards(document.getElementById('recipe-cards-container'), allRecipes);
+        updateRecipeCount(allRecipes.length);
+
+        // Met à jour tous les dropdowns avec les éléments basés sur toutes les recettes
+        updateAllDropdownsItems(allRecipes, document.getElementById('filter-dropdown-section'));
+      }
+    }
   });
 
-  // Initialise le dropdown en affichant tous les items
-  updateDropdownItems('', items, id);
+  const initialItems = getFilteredDropdownItems()[id] || items;
+  updateDropdownItems('', initialItems, id);
 
   return dropdownContainer;
 }

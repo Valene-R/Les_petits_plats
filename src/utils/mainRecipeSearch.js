@@ -9,7 +9,7 @@ import { setMainSearchPerformed } from './state/mainSearchState.js';
 import { getUniqueRecipeComponents } from '../services/api.js';
 import { displayRecipeCards } from '../components/displayRecipeCards.js';
 import { updateRecipeCount } from './updateRecipeCount.js';
-import { filteredDropdownItems } from './state/filteredDropdownItems.js';
+import { setFilteredDropdownItems } from './state/filteredDropdownItems.js';
 
 /**
  * Recherche principale parmi les recettes en filtrant celles qui correspondent à la requête,
@@ -52,10 +52,12 @@ export async function mainRecipeSearch(query, strictSearch = false) {
   // Récupére les ingrédients, appareils et ustensiles uniques à partir des recettes trouvées
   const { ingredients, appliances, ustensils } = await getUniqueRecipeComponents(recipesFound);
 
-  // Met à jour les éléments de dropdown avec les items filtrés
-  filteredDropdownItems.ingredients = ingredients;
-  filteredDropdownItems.appliances = appliances;
-  filteredDropdownItems.ustensils = ustensils;
+  // Met à jour les éléments filtrés dans le dropdown
+  setFilteredDropdownItems({
+    ingredients,
+    appliances,
+    ustensils,
+  });
 
   // Met à jour l'affichage des dropdowns en fonction des recettes trouvées
   const listContainer = document.getElementById('filter-dropdown-section');

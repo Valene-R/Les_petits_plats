@@ -7,7 +7,8 @@ import { displayError } from './utils/displayError.js';
 import { updateAllDropdownsItems } from './utils/updateAllDropdownsItems.js';
 import { selectedItems } from './utils/state/selectedItemsState.js';
 import { filterRecipesByTags } from './utils/filterRecipesByTags.js';
-import { filteredDropdownItems } from './utils/state/filteredDropdownItems.js';
+import { updateFilteredDropdownItems } from './utils/state/filteredDropdownItems.js';
+import { resetAll } from './utils/reset.js';
 
 /**
  * Réinitialise le bouton de recherche à son état initial
@@ -23,33 +24,18 @@ function resetSearchButton() {
  * Configure le bouton de suppression du champ de recherche et gère la réinitialisation des recettes et des éléments filtrés
  * @param {HTMLElement} clearButton Le bouton de suppression
  * @param {HTMLElement} searchForm Le formulaire de recherche
- * @param {HTMLElement} recipeCardsContainer Le conteneur des cartes de recettes
- * @param {HTMLElement} listContainer Le conteneur des dropdowns de filtrage
  */
-function configClearButton(clearButton, searchForm, recipeCardsContainer, listContainer) {
+function configClearButton(clearButton, searchForm) {
   const tagsContainer = document.getElementById('tags-container');
-  // Ajoute l'écouteur d'événement pour gérer la réinitialisation du champ de recherche
-  clearButton.addEventListener('click', () => {
-    searchForm.reset(); // Réinitialise le formulaire
+
+  clearButton.addEventListener('click', async () => {
+    searchForm.reset(); // Réinitialise le formulaire de recherche
     clearButton.classList.add('hidden'); // Cache le bouton de suppression
 
-    // Réinitialise les tags
-    selectedItems.clear(); // Vide la collection des éléments sélectionnés
-    tagsContainer.textContent = ''; // Vide les tags affichés
+    selectedItems.clear(); // Vide les sélections actuelles
+    tagsContainer.textContent = ''; // Efface les tags affichés
 
-    // Réinitialise les items filtrés dans `filteredDropdownItems`
-    filteredDropdownItems.ingredients = [];
-    filteredDropdownItems.appliances = [];
-    filteredDropdownItems.ustensils = [];
-
-    // Recharge toutes les recettes après réinitialisation du champ de recherche
-    getRecipes().then((allRecipes) => {
-      displayRecipeCards(recipeCardsContainer, allRecipes);
-      updateRecipeCount(); // Met à jour le nombre de recettes affichées
-
-      // Réinitialise les dropdowns avec toutes les recettes
-      updateAllDropdownsItems(allRecipes, listContainer);
-    });
+    await resetAll(); // Réinitialise tous les état de l'application
   });
 }
 
@@ -60,25 +46,30 @@ function configClearButton(clearButton, searchForm, recipeCardsContainer, listCo
 async function handleSearch(event) {
   event.preventDefault();
 
-  const searchQuery = document.getElementById('search').value.trim(); // Récupère et nettoie la requête de recherche
+  try {
+    const searchQuery = document.getElementById('search').value.trim(); // Récupère et nettoie la requête de recherche
+    let searchResults;
 
-  let searchResults;
+    if (searchQuery === '') {
+      // Récupère toutes les recettes si aucune recherche n'est faite
+      searchResults = await getRecipes();
+    } else {
+      // Sinon, recherche les recettes correspondant à la requête
+      searchResults = await mainRecipeSearch(searchQuery, true); // Recherche stricte par mot complet
+    }
 
-  if (searchQuery === '') {
-    // Récupère toutes les recettes si aucune recherche n'est faite
-    searchResults = await getRecipes();
-  } else {
-    // Sinon, recherche les recettes correspondant à la requête
-    searchResults = await mainRecipeSearch(searchQuery, true); // Recherche stricte par mot complet
+    // Filtre les résultats trouvés en fonction des tags sélectionnés
+    await filterRecipesByTags(selectedItems, searchResults);
+    // Met à jour les items des dropdowns avec les nouvelles recettes
+    updateAllDropdownsItems(searchResults, document.getElementById('filter-dropdown-section'));
+
+    const clearButton = document.querySelector('button[aria-label="Clear search"]');
+    clearButton.classList.toggle('hidden', searchQuery.length === 0); // Affiche ou cache le bouton de suppression selon la requête
+
+    resetSearchButton(); // Réinitialise le bouton loupe à son état initial
+  } catch (error) {
+    console.error('Error during search:', error);
   }
-
-  // Filtre les résultats trouvés en fonction des tags sélectionnés
-  await filterRecipesByTags(selectedItems, searchResults);
-
-  const clearButton = document.querySelector('button[aria-label="Clear search"]');
-  clearButton.classList.toggle('hidden', searchQuery.length === 0); // Affiche ou cache le bouton de suppression selon la requête
-
-  resetSearchButton(); // Réinitialise le bouton loupe à son état initial
 }
 
 /**
@@ -94,24 +85,32 @@ async function init() {
   const searchForm = document.querySelector('form');
 
   try {
+    // Récupère toutes les recettes
+    const allRecipes = await getRecipes();
+
     // Affiche les dropdowns de filtrage dans le conteneur
-    displayDropdownItems(filterDropdownSection);
+    await displayDropdownItems(filterDropdownSection);
 
     // Récupère et affiche les recettes au chargement de la page
-    const allRecipes = await getRecipes();
     displayRecipeCards(recipeCardsContainer, allRecipes);
-    updateRecipeCount(); // Met à jour le nombre de recettes affichées
+    updateRecipeCount(allRecipes.length); // Met à jour le nombre de recettes affichées
+
+    // Met à jour les items des dropdowns en fonction de toutes les recettes
+    await updateFilteredDropdownItems(allRecipes);
+    updateAllDropdownsItems(allRecipes, filterDropdownSection); // Met à jour les dropdowns avec ces éléments
   } catch (error) {
     console.error('Error loading recipes:', error);
     displayError(recipeCardsContainer, 'Échec du chargement des recettes. Veuillez réessayer plus tard.');
   }
 
-  searchForm.addEventListener('submit', handleSearch); // Ajoute un écouteur d'événement pour gérer la soumission du formulaire de recherche
+  searchForm.addEventListener('submit', (event) => handleSearch(event)); // Ajoute un écouteur d'événement pour gérer la soumission du formulaire de recherche
 
   // Gère la recherche en temps réel lors de la saisie dans le champ principal de recherche
   searchInput.addEventListener('input', async () => {
     if (searchInput.value.length > 0) {
       clearButton.classList.remove('hidden');
+
+      await resetAll();
 
       // Recherche les recettes correspondant à la sous-chaîne entrée par l'utilisateur
       const searchResults = await mainRecipeSearch(searchInput.value, false, selectedItems); // Recherche non stricte car s'effectue dynamiquement lors de la saisie
@@ -134,7 +133,7 @@ async function init() {
     updateRecipeCount(); // Met à jour le nombre de recettes affichées
   });
 
-  configClearButton(clearButton, searchForm, recipeCardsContainer);
+  configClearButton(clearButton, searchForm, recipeCardsContainer, filterDropdownSection);
 }
 
 init();
