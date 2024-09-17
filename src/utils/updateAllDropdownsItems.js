@@ -10,7 +10,6 @@ import { createDropdownItems } from '../components/createDropdownItems.js';
 export async function updateAllDropdownsItems(filteredRecipes, listContainer) {
   // Vérifie si des recettes filtrées existent
   if (!filteredRecipes || filteredRecipes.length === 0) {
-    console.warn('No recipes found.');
     return;
   }
 

@@ -9,6 +9,8 @@ import { getCurrentRecipes } from '../utils/state/currentRecipes.js';
 import { getRecipes } from '../services/api.js';
 import { displayRecipeCards } from './displayRecipeCards.js';
 import { updateRecipeCount } from '../utils/updateRecipeCount.js';
+import { filterRecipesByTags } from '../utils/filterRecipesByTags.js';
+import { reapplySelectedItems } from '../handlers/handleItemClick.js';
 
 /**
  * Crée un menu déroulant pour les éléments de sélection (catégories : ingrédients, appareils, ustensiles)
@@ -127,32 +129,6 @@ export function createDropdown(title, id, items) {
   itemsContainer.className = 'py-1 list-none max-h-[251px] overflow-y-auto hide-scrollbar dropdown-items';
   itemsContainer.setAttribute('role', 'listbox');
 
-  // Ajoute les items à la liste et gère la sélection
-  items.forEach((item, index) => {
-    const listItem = createDropdownItem(item, index, id, false);
-
-    listItem.addEventListener('click', () => {
-      const itemKey = `${id}:${item}`;
-
-      // Ajoute ou retire un item de la sélection
-      if (selectedItems.has(itemKey)) {
-        selectedItems.delete(itemKey);
-      } else {
-        selectedItems.set(itemKey, true);
-      }
-
-      // Filtre les recettes en fonction des éléments sélectionnés
-      filterRecipesByTags(selectedItems).then((filteredRecipes) => {
-        if (filteredRecipes.length > 0) {
-          updateAllDropdownsItems(filteredRecipes, document.getElementById('filter-dropdown-section'));
-          reapplySelectedItems(); // Réapplique la sélection des items après le filtrage
-        }
-      });
-    });
-
-    itemsContainer.appendChild(listItem);
-  });
-
   // Ajoute les éléments au contenu du dropdown
   dropdownContent.appendChild(searchContainer);
   dropdownContent.appendChild(itemsContainer);
@@ -266,12 +242,15 @@ export function createDropdown(title, id, items) {
 
     // CAS 1 : Si des tags sont sélectionnés, utilise les recettes filtrées par les tags
     if (selectedItems.size > 0) {
-      const filteredRecipes = getCurrentRecipes(); // Utilise les recettes filtrées actuellement affichées
+      const filteredRecipes = await filterRecipesByTags(selectedItems); // Utilise les recettes filtrées par les tags
 
       // Met à jour les items filtrés pour les dropdowns en fonction des recettes actuelles
       await updateFilteredDropdownItems(filteredRecipes);
       const filteredItems = getFilteredDropdownItems()[id] || items; // Récupère les items mis à jour ou ceux par défaut
       updateDropdownItems('', filteredItems, id); // Met à jour les items du dropdown correspondant à la catégorie
+
+      // Réapplique les items sélectionnés en tête de liste
+      reapplySelectedItems(id);
     } else {
       // CAS 2 : Aucun tag sélectionné, vérifie si une recherche principale a été effectuée
       const mainSearchPerformed = getMainSearchPerformed();
@@ -284,6 +263,9 @@ export function createDropdown(title, id, items) {
         await updateFilteredDropdownItems(displayedRecipes);
         const filteredItems = getFilteredDropdownItems()[id] || items;
         updateDropdownItems('', filteredItems, id); // Met à jour les items du dropdown
+
+        // Réapplique les items sélectionnés en tête de liste
+        reapplySelectedItems(id);
       } else {
         // CAS 2.2 : Si aucune recherche principale n'a été effectuée, récupère toutes les recettes
         const allRecipes = await getRecipes();
@@ -299,6 +281,9 @@ export function createDropdown(title, id, items) {
 
         // Met à jour tous les dropdowns avec les éléments basés sur toutes les recettes
         updateAllDropdownsItems(allRecipes, document.getElementById('filter-dropdown-section'));
+
+        // Réapplique les items sélectionnés en tête de liste
+        reapplySelectedItems(id);
       }
     }
   });

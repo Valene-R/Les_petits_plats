@@ -9,7 +9,7 @@ let filteredDropdownItems = {
 };
 
 /**
- * Retourne les items filtrés actuels
+ * Obtient les items filtrés actuels
  * @returns {Object} Un objet contenant les ingrédients, appareils et ustensiles filtrés
  */
 export function getFilteredDropdownItems() {
@@ -17,15 +17,16 @@ export function getFilteredDropdownItems() {
 }
 
 /**
- * Met à jour les items filtrés des dropdowns
+ * Définit les items filtrés des dropdowns
  * @param {Object} newItems Un objet contenant les nouveaux items filtrés pour les ingrédients, appareils et ustensiles
  */
 export function setFilteredDropdownItems(newItems) {
-  if (!newItems.ingredients.length && !newItems.appliances.length && !newItems.ustensils.length) {
+  if (Object.values(newItems).every((category) => !category.length)) {
     return;
   }
 
-  filteredDropdownItems = { ...filteredDropdownItems, ...newItems }; // Met à jour les items existants avec les nouveaux
+  // Remplace les items existants par les nouveaux
+  filteredDropdownItems = { ...filteredDropdownItems, ...newItems };
 }
 
 /**
@@ -37,7 +38,7 @@ export async function updateFilteredDropdownItems(recipes) {
   try {
     // Vérifie si aucun tag n'est sélectionné
     if (selectedItems.size === 0) {
-      // Si aucun tag n'est sélectionné, on retourne tous les ingrédients, appareils et ustensiles
+      // Si aucun tag n'est sélectionné, retourne tous les ingrédients, appareils et ustensiles
       const allComponents = await getUniqueRecipeComponents(recipes);
       setFilteredDropdownItems(allComponents);
       return;
