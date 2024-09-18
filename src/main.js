@@ -11,29 +11,14 @@ import { updateFilteredDropdownItems } from './utils/state/filteredDropdownItems
 import { resetAll } from './utils/reset.js';
 
 /**
- * Réinitialise le bouton de recherche à son état initial
- */
-function resetSearchButton() {
-  const searchButton = document.querySelector('.search-button');
-  const newButton = searchButton.cloneNode(true); // Clone le bouton
-
-  searchButton.parentNode.replaceChild(newButton, searchButton); // Remplace l'ancien bouton par le clone
-}
-
-/**
  * Configure le bouton de suppression du champ de recherche et gère la réinitialisation des recettes et des éléments filtrés
  * @param {HTMLElement} clearButton Le bouton de suppression
  * @param {HTMLElement} searchForm Le formulaire de recherche
  */
 function configClearButton(clearButton, searchForm) {
-  const tagsContainer = document.getElementById('tags-container');
-
   clearButton.addEventListener('click', async () => {
     searchForm.reset(); // Réinitialise le formulaire de recherche
     clearButton.classList.add('hidden'); // Cache le bouton de suppression
-
-    selectedItems.clear(); // Vide les sélections actuelles
-    tagsContainer.textContent = ''; // Efface les tags affichés
 
     await resetAll(); // Réinitialise tous les état de l'application
   });
@@ -42,9 +27,21 @@ function configClearButton(clearButton, searchForm) {
 /**
  * Gère la recherche lors de la soumission du formulaire
  * @param {Event} event L'événement de soumission du formulaire
+ * @param {HTMLElement} recipeCardsContainer Le conteneur qui affichera les cartes de recettes
  */
-async function handleSearch(event) {
+async function handleSearch(event, recipeCardsContainer) {
   event.preventDefault();
+
+  const searchButton = document.querySelector('.search-button');
+  searchButton.disabled = true; // Désactive le bouton pendant le traitement du bloc try-catch pour éviter les soumissions multiples
+
+  // Vérifie s'il y a des tags sélectionnés
+  if (selectedItems.size > 0) {
+    await resetAll();
+
+    // Affiche une notification pour informer que les tags sont réinitialisés
+    showToast('Les filtres ont été réinitialisés', 'info');
+  }
 
   try {
     const searchQuery = document.getElementById('search').value.trim(); // Récupère et nettoie la requête de recherche
@@ -58,18 +55,59 @@ async function handleSearch(event) {
       searchResults = await mainRecipeSearch(searchQuery, true); // Recherche stricte par mot complet
     }
 
-    // Filtre les résultats trouvés en fonction des tags sélectionnés
-    await filterRecipesByTags(selectedItems, searchResults);
-    // Met à jour les items des dropdowns avec les nouvelles recettes
-    updateAllDropdownsItems(searchResults, document.getElementById('filter-dropdown-section'));
+    if (searchResults.length === 0) {
+      // Si aucun résultat, affiche le message d'erreur
+      displayError(
+        recipeCardsContainer,
+        `Aucune recette ne contient "${searchQuery}". Vous pouvez chercher "tarte aux pommes", "poisson", etc.`,
+      );
+    } else {
+      // Filtre les résultats trouvés en fonction des tags sélectionnés
+      await filterRecipesByTags(selectedItems, searchResults);
+      // Met à jour les items des dropdowns avec les nouvelles recettes
+      updateAllDropdownsItems(searchResults, document.getElementById('filter-dropdown-section'));
+    }
 
     const clearButton = document.querySelector('button[aria-label="Clear search"]');
     clearButton.classList.toggle('hidden', searchQuery.length === 0); // Affiche ou cache le bouton de suppression selon la requête
-
-    resetSearchButton(); // Réinitialise le bouton loupe à son état initial
   } catch (error) {
     console.error('Error during search:', error);
+  } finally {
+    searchButton.disabled = false; // Réactive le bouton une fois la recherche terminée
   }
+}
+
+/**
+ * Affiche une notification d'information sous forme de toast
+ * @param {string} message Le message à afficher dans la notification
+ * @param {string} [type='info'] Le type de notification pour appliquer un style spécifique (ex : 'info', 'error', 'success', 'alert')
+ * @param {number} [duration=2000] La durée pendant laquelle la notification est visible
+ */
+function showToast(message, type = 'info', duration = 2000) {
+  // Crée l'élément de notification (toast)
+  const toastNotification = document.createElement('div');
+  toastNotification.className = `show-toast ${type}`;
+  toastNotification.textContent = message;
+
+  // Ajoute la notification au DOM
+  document.body.appendChild(toastNotification);
+
+  // Ajoute directement la classe 'visible' pour déclencher la transition
+  toastNotification.classList.add('visible');
+
+  // Supprime la notification après 2 secondes (visible pendant 2s + 0,3s de transition)
+  setTimeout(() => {
+    toastNotification.classList.remove('visible');
+
+    // Attend la fin de la transition avant de supprimer l'élément du DOM
+    toastNotification.addEventListener(
+      'transitionend',
+      () => {
+        toastNotification.remove();
+      },
+      { once: true }, // L'événement ne sera déclenché qu'une seule fois
+    );
+  }, duration); // Durée d'affichage de 2 secondes avant suppression
 }
 
 /**
@@ -103,7 +141,7 @@ async function init() {
     displayError(recipeCardsContainer, 'Échec du chargement des recettes. Veuillez réessayer plus tard.');
   }
 
-  searchForm.addEventListener('submit', (event) => handleSearch(event)); // Ajoute un écouteur d'événement pour gérer la soumission du formulaire de recherche
+  searchForm.addEventListener('submit', (event) => handleSearch(event, recipeCardsContainer)); // Ajoute un écouteur d'événement pour gérer la soumission du formulaire de recherche
 
   // Gère la recherche en temps réel lors de la saisie dans le champ principal de recherche
   searchInput.addEventListener('input', async () => {

@@ -68,3 +68,23 @@
   padding-right: 11px;
   padding-left: 16px;
 }
+
+.show-toast {
+  position: fixed;
+  right: -300px; /* Initialement hors de l'écran */
+  top: 10px;
+  padding: 1rem 2rem;
+  background-color: #3490dc;
+  color: #fff;
+  border-radius: 8px;
+  opacity: 0; /* Invisible par défaut */
+  transition:
+    right 0.3s ease-out,
+    opacity 0.3s ease-out;
+  z-index: 1000;
+}
+
+.show-toast.visible {
+  right: 10px;
+  opacity: 1;
+}
