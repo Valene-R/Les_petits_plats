@@ -61,7 +61,12 @@ async function handleSearch(event, recipeCardsContainer) {
         recipeCardsContainer,
         `Aucune recette ne contient "${searchQuery}". Vous pouvez chercher "tarte aux pommes", "poisson", etc.`,
       );
+      // Ajuste la hauteur minimale de la section
+      recipeCardsContainer.style.minHeight = '100vh';
     } else {
+      // Réinitialise la hauteur minimale si des résultats sont trouvés
+      recipeCardsContainer.style.minHeight = '';
+
       // Filtre les résultats trouvés en fonction des tags sélectionnés
       await filterRecipesByTags(selectedItems, searchResults);
       // Met à jour les items des dropdowns avec les nouvelles recettes
@@ -161,6 +166,11 @@ async function init() {
           recipeCardsContainer,
           `Aucune recette ne contient "${searchInput.value}". Vous pouvez chercher "tarte aux pommes", "poisson", etc.`,
         );
+        // Ajuste la hauteur minimale de la section
+        recipeCardsContainer.style.minHeight = '100vh';
+      } else {
+        // Réinitialise la hauteur minimale si des résultats sont trouvés
+        recipeCardsContainer.style.minHeight = '';
       }
     } else {
       clearButton.classList.add('hidden');
